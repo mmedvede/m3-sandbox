@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Query m3 api for configured topologies and other state.
+
+set -u
+set -eE
+set -o pipefail
+
+HOST=${1:-localhost}
+PORT=${2:-7202}
+
+
+query_endpoint() {
+    local endpoint="$1"
+    echo "# M3DB namespaces"
+    curl -s $endpoint/api/v1/services/m3db/namespace | jq
+    echo "# M3DB placement"
+    curl -s $endpoint/api/v1/services/m3db/placement | jq
+    echo "# M3coord placement default_env"
+    curl -s $endpoint/api/v1/services/m3coordinator/placement | jq
+    echo "# M3coord placement dr"
+    curl -H 'Cluster-Environment-Name: dr' -s $endpoint/api/v1/services/m3coordinator/placement | jq
+    echo "# M3Agg placement"
+    curl -s $endpoint/api/v1/services/m3aggregator/placement | jq
+
+    echo "# Aggregator topic default"
+    curl -s $endpoint/api/v1/topic | jq
+    echo "# Aggregator topic DR"
+    curl -H 'topic-name: aggregated_metrics_dr' -s $endpoint/api/v1/topic | jq
+}
+
+query_endpoint $HOST:$PORT

@@ -1,0 +1,37 @@
+# config file version
+apiVersion: 1
+
+# list of datasources that should be deleted from the database
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+
+datasources:
+- name: Prometheus
+  type: prometheus
+  access: proxy
+  url: http://prometheus:9090
+  basicAuth: false
+  isDefault: true
+  jsonData:
+     graphiteVersion: "1.1"
+     tlsAuth: false
+     tlsAuthWithCACert: false
+  version: 1
+  editable: true
+
+- name: Coordinator
+  type: prometheus
+  access: proxy
+  orgId: 1
+  url: http://m3coordinator01:7202
+  version: 1
+  editable: true
+
+- name: Query Aggregated
+  type: prometheus
+  access: proxy
+  orgId: 1
+  url: http://m3query:7201
+  version: 1
+  editable: true

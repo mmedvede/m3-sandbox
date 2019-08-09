@@ -1,0 +1,205 @@
+version: "3.5"
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+services:
+  dbnode01:
+    expose:
+      - "9000-9004"
+      - "2379-2380"
+      - "7201"
+    ports:
+      - "0.0.0.0:9000-9004:9000-9004"
+      - "0.0.0.0:2379-2380:2379-2380"
+      - "0.0.0.0:7201:7201"
+    networks:
+      - backend
+    environment:
+      - M3DB_HOST_ID=dbnode01
+    image: "quay.io/m3db/m3dbnode:v0.10.2"
+    volumes:
+      - "./m3dbnode-cluster-template.yml:/etc/m3dbnode/m3dbnode.yml"
+  dbnode02:
+    expose:
+      - "9000-9004"
+      - "2379-2380"
+      - "7201"
+    networks:
+      - backend
+    environment:
+      - M3DB_HOST_ID=dbnode02
+    image: "quay.io/m3db/m3dbnode:v0.10.2"
+    volumes:
+      - "./m3dbnode-cluster-template.yml:/etc/m3dbnode/m3dbnode.yml"
+  dbnode03:
+    expose:
+      - "9000-9004"
+      - "2379-2380"
+      - "7201"
+    networks:
+      - backend
+    environment:
+      - M3DB_HOST_ID=dbnode03
+    image: "quay.io/m3db/m3dbnode:v0.10.2"
+    volumes:
+      - "./m3dbnode-cluster-template.yml:/etc/m3dbnode/m3dbnode.yml"
+  m3coordinator01:
+    expose:
+      - "7202"
+      - "7203"
+      - "7507"
+    ports:
+      - "0.0.0.0:7202:7202"
+      - "0.0.0.0:7507:7507"
+    networks:
+      - backend
+    image: "quay.io/m3db/m3coordinator:v0.10.2"
+    volumes:
+      - "./m3coordinator.yml:/etc/m3coordinator/m3coordinator.yml"
+  m3coordinator02:
+    expose:
+      - "7202"
+      - "7203"
+      - "7507"
+    ports:
+      - "0.0.0.0:7508:7507"
+    networks:
+      - backend
+    image: "quay.io/m3db/m3coordinator:v0.10.2"
+    volumes:
+      - "./m3coordinator.yml:/etc/m3coordinator/m3coordinator.yml"
+  m3coordinator03:
+    expose:
+      - "7202"
+      - "7203"
+      - "7507"
+    ports:
+      - "0.0.0.0:7509:7507"
+    networks:
+      - backend
+    image: "quay.io/m3db/m3coordinator:v0.10.2"
+    volumes:
+      - "./m3coordinator.yml:/etc/m3coordinator/m3coordinator.yml"
+  m3aggregator01:
+    expose:
+      - "6001"
+    ports:
+      - "127.0.0.1:6001:6001"
+    networks:
+      - backend
+    environment:
+      - M3AGGREGATOR_HOST_ID=m3aggregator01
+    image: "m3aggregator"
+    volumes:
+      - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
+  m3aggregator02:
+    networks:
+      - backend
+    environment:
+      - M3AGGREGATOR_HOST_ID=m3aggregator02
+    image: "m3aggregator"
+    volumes:
+      - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
+  m3aggregator03:
+    networks:
+      - backend
+    environment:
+      - M3AGGREGATOR_HOST_ID=m3aggregator03
+    image: "m3aggregator"
+    volumes:
+      - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
+  m3aggregator04:
+    networks:
+      - backend
+    environment:
+      - M3AGGREGATOR_HOST_ID=m3aggregator04
+    image: "m3aggregator"
+    volumes:
+      - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
+  m3aggregator05:
+    networks:
+      - backend
+    environment:
+      - M3AGGREGATOR_HOST_ID=m3aggregator05
+    image: "m3aggregator"
+    volumes:
+      - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
+  m3aggregator06:
+    networks:
+      - backend
+    environment:
+      - M3AGGREGATOR_HOST_ID=m3aggregator06
+    image: "m3aggregator"
+    volumes:
+      - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
+  prometheus:
+    image: prom/prometheus:v2.1.0
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+    networks:
+      - backend
+  grafana:
+    image: grafana/grafana
+    user: "104"
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    networks:
+      - backend
+  cadvisor:
+    image: google/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    networks:
+      - backend
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - 9100:9100
+    networks:
+      - backend
+  m3query:
+    expose:
+      - "7201"
+      - "7203"
+    ports:
+      - 7901:7201
+    image: quay.io/m3db/m3query:v0.10.2
+    volumes:
+      - ./m3query-local-etcd.yml:/etc/m3query/m3query.yml
+    networks:
+      - backend
+  fakewebserver01:
+    networks:
+      - backend
+    environment:
+      - PORT_COUNT=1000
+    image: quay.io/m3/bench-fakewebserver:latest
+networks:
+  backend:

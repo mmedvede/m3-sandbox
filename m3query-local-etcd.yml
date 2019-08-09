@@ -1,0 +1,64 @@
+listenAddress:
+  type: "config"
+  value: "0.0.0.0:7201"
+
+metrics:
+  scope:
+    prefix: "coordinator"
+  prometheus:
+    handlerPath: /metrics
+    listenAddress: 0.0.0.0:7203 # until https://github.com/m3db/m3/issues/682 is resolved
+  sanitization: prometheus
+  samplingRate: 1.0
+  extended: none
+
+tagOptions:
+  idScheme: quoted
+
+clusters:
+  - namespaces:
+      - namespace: agg
+        type: unaggregated  # intentional, otherwise query is not happy
+        retention: 30m
+        resolution: 10s
+        downsample:
+          all: false
+      # - namespace: unagg
+      #   type: unaggregated
+      #   retention: 1s
+    client:
+      config:
+        service:
+          env: default_env
+          zone: embedded
+          service: m3db
+          cacheDir: /var/lib
+          etcdClusters:
+            - zone: embedded
+              endpoints:
+                - dbnode01:2379
+                - dbnode02:2379
+                - dbnode03:2379
+      writeConsistencyLevel: majority
+      readConsistencyLevel: unstrict_majority
+      writeTimeout: 10s
+      fetchTimeout: 15s
+      connectTimeout: 20s
+      writeRetry:
+        initialBackoff: 500ms
+        backoffFactor: 3
+        maxRetries: 2
+        jitter: true
+      fetchRetry:
+        initialBackoff: 500ms
+        backoffFactor: 2
+        maxRetries: 3
+        jitter: true
+      backgroundHealthCheckFailLimit: 4
+      backgroundHealthCheckFailThrottleFactor: 0.5
+
+# Uncomment this to enable local jaeger tracing. See https://www.jaegertracing.io/docs/1.9/getting-started/
+# for quick local setup (which this config will send data to).
+
+# tracing:
+#  backend: jaeger
