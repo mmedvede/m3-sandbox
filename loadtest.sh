@@ -15,6 +15,6 @@ eval echo fakewebserver01:{8080..$((8080 + $NUM_PORTS -1))} \
 )
 
 sed -i.bak 's/FAKEWEBSERVERTARGETS/"'"${SCRAPE_TARGETS}"'"/g' ./prometheus/prometheus.yml
-docker exec m3test_prometheus_1 kill -SIGHUP 1
+docker exec m3-sandbox_prometheus_1 kill -SIGHUP 1
 mv ./prometheus/prometheus.yml.bak ./prometheus/prometheus.yml
 docker-compose up -d fakewebserver01
