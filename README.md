@@ -8,23 +8,6 @@ useful to get a working M3 environment running.
 
 # Requirements
 
-Build m3aggregator docker image manually unless it is available from a
-registry. See [m3aggregator
-dockerfile](https://github.com/m3db/m3/tree/master/docker/m3aggregator)
-
-    git clone https://github.com/m3db/m3
-    cd m3
-    docker build -t m3aggregator -f ./docker/m3aggregator/Dockerfile .
-
-The built image then can be distributed across test VMs without using docker
-repository like this:
-
-    docker save m3aggrgator > m3aggregator.docker.tar
-    scp m3aggregator <testvm>:
-
-    # on the testvm:
-    docker load -i ./m3aggregator.docker.tar
-
 Running the stack could be tricky if there is not enough RAM/CPU. If nodes are
 crashing, try removing scrape endpoints from
 [./prometheus/prometheus.yml](./prometheus/prometheus.yml).

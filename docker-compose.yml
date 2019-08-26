@@ -89,7 +89,7 @@ services:
       - backend
     environment:
       - M3AGGREGATOR_HOST_ID=m3aggregator01
-    image: "m3aggregator"
+    image: "quay.io/m3db/m3aggregator:v0.11.0"
     volumes:
       - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
   m3aggregator02:
@@ -97,7 +97,7 @@ services:
       - backend
     environment:
       - M3AGGREGATOR_HOST_ID=m3aggregator02
-    image: "m3aggregator"
+    image: "quay.io/m3db/m3aggregator:v0.11.0"
     volumes:
       - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
   m3aggregator03:
@@ -105,7 +105,7 @@ services:
       - backend
     environment:
       - M3AGGREGATOR_HOST_ID=m3aggregator03
-    image: "m3aggregator"
+    image: "quay.io/m3db/m3aggregator:v0.11.0"
     volumes:
       - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
   m3aggregator04:
@@ -113,7 +113,7 @@ services:
       - backend
     environment:
       - M3AGGREGATOR_HOST_ID=m3aggregator04
-    image: "m3aggregator"
+    image: "quay.io/m3db/m3aggregator:v0.11.0"
     volumes:
       - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
   m3aggregator05:
@@ -121,7 +121,7 @@ services:
       - backend
     environment:
       - M3AGGREGATOR_HOST_ID=m3aggregator05
-    image: "m3aggregator"
+    image: "quay.io/m3db/m3aggregator:v0.11.0"
     volumes:
       - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
   m3aggregator06:
@@ -129,7 +129,7 @@ services:
       - backend
     environment:
       - M3AGGREGATOR_HOST_ID=m3aggregator06
-    image: "m3aggregator"
+    image: "quay.io/m3db/m3aggregator:v0.11.0"
     volumes:
       - "./m3aggregator.yml:/etc/m3aggregator/m3aggregator.yml"
   prometheus:
